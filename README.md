@@ -278,6 +278,7 @@ outputKeep := cofly.Merge(cofly.Clone(target), change, false)
 
 ```go
 target := []any{"a", "b", "c"}
+
 change := map[string]any{
   "1..2": []any{"B"}, // replace
   "3..":  []any{"d"}, // append
@@ -345,9 +346,13 @@ Deep clone for supported values (`map[string]any` / `[]any`).
 Panics for unsupported types.
 
 ```go
-originalValue := map[string]any{"nested": map[string]any{"a": 1}}
+originalValue := map[string]any{
+    "nested": map[string]any{
+        "a": 1,
+    },
+}
+
 clonedValue := cofly.Clone(originalValue)
-_ = clonedValue
 ```
 
 ## Typical workflow
