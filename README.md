@@ -207,6 +207,12 @@ JSON view:
 
 Applies `change` to `target` and returns the resulting value.
 
+Mutability note:
+
+- When `target` is a `map[string]any`, `Merge` **mutates it in place** and also returns it.
+- When `target` is a `[]any` and `change` is a splice-map, `Merge` returns a **new slice**, but nested values (for example, maps inside the array) may still be mutated if they are merged element-by-element.
+- If you need to keep the original value unchanged, pass `cofly.Clone(target)` into `Merge`.
+
 General rules:
 
 - If `change == nil`, result is `nil` (set-to-nil).
