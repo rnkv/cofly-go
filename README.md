@@ -81,7 +81,7 @@ JSON view:
 oldValue := map[string]any{"a": 1, "b": 2}
 newValue := map[string]any{"a": 1, "b": 3, "c": "new"}
 
-change := cofly.Difference(oldValue, newValue).(map[string]any)
+change := cofly.Difference(oldValue, newValue)
 // change == map[string]any{"b": 3, "c": "new"}
 ```
 
@@ -111,8 +111,8 @@ Deletion uses `Undefined`:
 oldValue := map[string]any{"a": 1, "b": 2}
 newValue := map[string]any{"a": 1}
 
-change := cofly.Difference(oldValue, newValue).(map[string]any)
-// change["b"] == cofly.Undefined
+change := cofly.Difference(oldValue, newValue)
+// change == map[string]any{"b": cofly.Undefined}
 ```
 
 JSON view (deletion marker is `"\u0000"`):
@@ -156,7 +156,7 @@ Examples:
 oldArray := []any{"a", "b", "c"}
 newArray := []any{"a", "B", "c", "d"}
 
-change := cofly.Difference(oldArray, newArray).(map[string]any)
+change := cofly.Difference(oldArray, newArray)
 // change == map[string]any{
 //   "1..2": []any{"B"}, // replace element 1
 //   "3..":  []any{"d"}, // append at end
@@ -182,7 +182,7 @@ Deletion from an array:
 oldArray := []any{"a", "b"}
 newArray := []any{"a"}
 
-change := cofly.Difference(oldArray, newArray).(map[string]any)
+change := cofly.Difference(oldArray, newArray)
 // change == map[string]any{"1..2": []any{}}
 ```
 
