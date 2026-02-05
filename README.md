@@ -231,7 +231,7 @@ You can also **merge a change into another change** (compose patches):
 target := map[string]any{"a": 1, "b": 2}
 change := map[string]any{"b": 3, "c": "new"}
 
-outputValue := cofly.Merge(target, change, true).(map[string]any)
+outputValue := cofly.Merge(target, change, true)
 // outputValue == map[string]any{"a": 1, "b": 3, "c": "new"}
 ```
 
@@ -261,11 +261,11 @@ Deletion with `doClean`:
 target := map[string]any{"a": 1, "b": 2}
 change := map[string]any{"b": cofly.Undefined}
 
-outClean := cofly.Merge(cofly.Clone(target), change, true).(map[string]any)
-// outClean == map[string]any{"a": 1}
+cleanedValue := cofly.Merge(cofly.Clone(target), change, true)
+// cleanedValue == map[string]any{"a": 1}
 
-outKeep := cofly.Merge(cofly.Clone(target), change, false).(map[string]any)
-// outKeep["b"] == cofly.Undefined
+keptValue := cofly.Merge(cofly.Clone(target), change, false)
+// keptValue == map[string]any{"a": 1, "b": cofly.Undefined}
 ```
 
 #### Array merge (apply splice-map)
@@ -277,8 +277,8 @@ change := map[string]any{
   "3..":  []any{"d"}, // append
 }
 
-outputArray := cofly.Merge(target, change, true).([]any)
-// outputArray == []any{"a", "B", "c", "d"}
+outputValue := cofly.Merge(target, change, true)
+// outputValue == []any{"a", "B", "c", "d"}
 ```
 
 JSON view:
@@ -340,7 +340,7 @@ Panics for unsupported types.
 
 ```go
 originalValue := map[string]any{"nested": map[string]any{"a": 1}}
-clonedValue := cofly.Clone(originalValue).(map[string]any)
+clonedValue := cofly.Clone(originalValue)
 _ = clonedValue
 ```
 
