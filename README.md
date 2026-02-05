@@ -354,16 +354,3 @@ originalValue := map[string]any{
 
 clonedValue := cofly.Clone(originalValue)
 ```
-
-## Typical workflow
-
-```go
-oldValue := map[string]any{"a": 1, "arr": []any{"x", "y"}}
-newValue := map[string]any{"a": 2, "arr": []any{"x", "Y", "z"}}
-
-change := cofly.Difference(oldValue, newValue)
-patchedValue := cofly.Merge(cofly.Clone(oldValue), change, true)
-
-// patchedValue should now represent newValue (per library semantics).
-_ = patchedValue
-```
