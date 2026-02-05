@@ -143,8 +143,8 @@ The value is always a `[]any` payload.
 
 Splice-map semantics:
 
-- A splice-map lists only changed spans. **Any index range not covered by a span key is left unchanged** (this is a change-map, not a full array snapshot).
-- If a `map[string]any` contains **no span keys at all** (for example `{}`), then it is **not** treated as a splice-map. When merged into an array, it becomes a **full replacement** (the array is replaced with that object).
+- A splice-map is a **sparse set of edits** to an existing array. Only the spans present as keys are modified; **everything else is taken from the old array unchanged**.
+- A map is treated as a splice-map only if **all keys are valid span keys** (like `"1..2"` or `"3.."`) and **all values are `[]any` payloads**. If the map contains **any non-span key** (or a non-`[]any` value), then it is **not** a splice-map. When merged into an array, it becomes a **full replacement** (the array is replaced with that object), even if some keys look like spans.
 - **Deletion** is represented by a splice with an **empty payload** (`[]` in JSON / `[]any{}` in Go).
 - **Out-of-bounds insertions are “magnetized” to the array**: if a splice inserts far to the left (negative indices) it behaves like a prepend, and if it inserts far to the right (beyond `len(old)`) it behaves like an append (no gaps are created).
 - **Splice spans must not overlap**. Overlapping spans make the patch ambiguous; Cofly treats such splice-maps as invalid and will panic when applying them.
