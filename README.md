@@ -78,11 +78,22 @@ JSON view:
 #### Object (map) example
 
 ```go
-oldValue := map[string]any{"a": 1, "b": 2}
-newValue := map[string]any{"a": 1, "b": 3, "c": "new"}
+oldValue := map[string]any{
+    "a": 1,
+    "b": 2,
+}
+
+newValue := map[string]any{
+    "a": 1,
+    "b": 3,
+    "c": "new",
+}
 
 change := cofly.Difference(oldValue, newValue)
-// change == map[string]any{"b": 3, "c": "new"}
+// change == map[string]any{
+//   "b": 3,
+//   "c": "new",
+// }
 ```
 
 JSON view:
@@ -108,11 +119,19 @@ JSON view:
 Deletion uses `Undefined`:
 
 ```go
-oldValue := map[string]any{"a": 1, "b": 2}
-newValue := map[string]any{"a": 1}
+oldValue := map[string]any{
+    "a": 1,
+    "b": 2,
+}
+
+newValue := map[string]any{
+    "a": 1,
+}
 
 change := cofly.Difference(oldValue, newValue)
-// change == map[string]any{"b": cofly.Undefined}
+// change == map[string]any{
+//   "b": cofly.Undefined,
+// }
 ```
 
 JSON view (deletion marker is `"\u0000"`):
