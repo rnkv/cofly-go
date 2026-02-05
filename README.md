@@ -231,15 +231,15 @@ You can also **merge a change into another change** (compose patches):
 target := map[string]any{"a": 1, "b": 2}
 change := map[string]any{"b": 3, "c": "new"}
 
-outputValue := cofly.Merge(target, change, true)
-// outputValue == map[string]any{"a": 1, "b": 3, "c": "new"}
+output := cofly.Merge(target, change, true)
+// output == map[string]any{"a": 1, "b": 3, "c": "new"}
 ```
 
 JSON view:
 
 ```json
 {
-  "targetValue": {
+  "target": {
     "a": 1,
     "b": 2
   },
@@ -247,7 +247,7 @@ JSON view:
     "b": 3,
     "c": "new"
   },
-  "outputValue": {
+  "output": {
     "a": 1,
     "b": 3,
     "c": "new"
@@ -261,11 +261,11 @@ Deletion with `doClean`:
 target := map[string]any{"a": 1, "b": 2}
 change := map[string]any{"b": cofly.Undefined}
 
-cleanedValue := cofly.Merge(cofly.Clone(target), change, true)
-// cleanedValue == map[string]any{"a": 1}
+outputClean := cofly.Merge(cofly.Clone(target), change, true)
+// outputClean == map[string]any{"a": 1}
 
-keptValue := cofly.Merge(cofly.Clone(target), change, false)
-// keptValue == map[string]any{"a": 1, "b": cofly.Undefined}
+outputKeep := cofly.Merge(cofly.Clone(target), change, false)
+// outputKeep == map[string]any{"a": 1, "b": cofly.Undefined}
 ```
 
 #### Array merge (apply splice-map)
@@ -277,20 +277,20 @@ change := map[string]any{
   "3..":  []any{"d"}, // append
 }
 
-outputValue := cofly.Merge(target, change, true)
-// outputValue == []any{"a", "B", "c", "d"}
+output := cofly.Merge(target, change, true)
+// output == []any{"a", "B", "c", "d"}
 ```
 
 JSON view:
 
 ```json
 {
-  "targetArray": ["a", "b", "c"],
+  "target": ["a", "b", "c"],
   "change": {
     "1..2": ["B"],
     "3..": ["d"]
   },
-  "outputArray": ["a", "B", "c", "d"]
+  "output": ["a", "B", "c", "d"]
 }
 ```
 ### `Apply(target *any, isSnapshot bool, change *any, doClean bool) bool`
