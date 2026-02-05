@@ -203,7 +203,9 @@ oldArray := []any{"a", "b"}
 newArray := []any{"a"}
 
 change := cofly.Difference(oldArray, newArray)
-// change == map[string]any{"1..2": []any{}}
+// change == map[string]any{
+//   "1..2": []any{},
+// }
 ```
 
 JSON view:
