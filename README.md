@@ -68,7 +68,11 @@ change := cofly.Difference(oldValue, newValue) // 2
 JSON view:
 
 ```json
-{ "old": 1, "new": 2, "change": 2 }
+{
+  "oldValue": 1,
+  "newValue": 2,
+  "change": 2
+}
 ```
 
 #### Object (map) example
@@ -85,9 +89,19 @@ JSON view:
 
 ```json
 {
-  "old": { "a": 1, "b": 2 },
-  "new": { "a": 1, "b": 3, "c": "new" },
-  "change": { "b": 3, "c": "new" }
+  "oldValue": {
+    "a": 1,
+    "b": 2
+  },
+  "newValue": {
+    "a": 1,
+    "b": 3,
+    "c": "new"
+  },
+  "change": {
+    "b": 3,
+    "c": "new"
+  }
 }
 ```
 
@@ -105,9 +119,16 @@ JSON view (deletion marker is `"\u0000"`):
 
 ```json
 {
-  "old": { "a": 1, "b": 2 },
-  "new": { "a": 1 },
-  "change": { "b": "\u0000" }
+  "oldValue": {
+    "a": 1,
+    "b": 2
+  },
+  "newValue": {
+    "a": 1
+  },
+  "change": {
+    "b": "\u0000"
+  }
 }
 ```
 
@@ -146,8 +167,8 @@ JSON view:
 
 ```json
 {
-  "old": ["a", "b", "c"],
-  "new": ["a", "B", "c", "d"],
+  "oldArray": ["a", "b", "c"],
+  "newArray": ["a", "B", "c", "d"],
   "change": {
     "1..2": ["B"],
     "3..": ["d"]
@@ -169,9 +190,11 @@ JSON view:
 
 ```json
 {
-  "old": ["a", "b"],
-  "new": ["a"],
-  "change": { "1..2": [] }
+  "oldArray": ["a", "b"],
+  "newArray": ["a"],
+  "change": {
+    "1..2": []
+  }
 }
 ```
 
@@ -215,9 +238,19 @@ JSON view:
 
 ```json
 {
-  "target": { "a": 1, "b": 2 },
-  "change": { "b": 3, "c": "new" },
-  "out": { "a": 1, "b": 3, "c": "new" }
+  "targetValue": {
+    "a": 1,
+    "b": 2
+  },
+  "change": {
+    "b": 3,
+    "c": "new"
+  },
+  "outputValue": {
+    "a": 1,
+    "b": 3,
+    "c": "new"
+  }
 }
 ```
 
@@ -251,9 +284,12 @@ JSON view:
 
 ```json
 {
-  "target": ["a", "b", "c"],
-  "change": { "1..2": ["B"], "3..": ["d"] },
-  "out": ["a", "B", "c", "d"]
+  "targetArray": ["a", "b", "c"],
+  "change": {
+    "1..2": ["B"],
+    "3..": ["d"]
+  },
+  "outputArray": ["a", "B", "c", "d"]
 }
 ```
 ### `Apply(target *any, isSnapshot bool, change *any, doClean bool) bool`
