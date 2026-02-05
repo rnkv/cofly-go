@@ -10,6 +10,13 @@ type span struct {
 	indexTo   int
 }
 
+func newSpan(indexFrom, indexTo int) span {
+	return span{
+		indexFrom: indexFrom,
+		indexTo:   indexTo,
+	}
+}
+
 func parseSpan(key string) (span, bool) {
 	indexFromString, indexToString, found := strings.Cut(key, "..")
 	if !found {

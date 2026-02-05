@@ -20,6 +20,17 @@ func mustPanic(t *testing.T, fn func()) {
 }
 
 func TestDifference(t *testing.T) {
+	apply := func(t *testing.T, old, new any) any {
+		t.Helper()
+
+		diff := cofly.Difference(old, new)
+		if diff == cofly.Undefined {
+			return cofly.Clone(old)
+		}
+
+		return cofly.Merge(cofly.Clone(old), diff, true)
+	}
+
 	t.Run("nil-handling", func(t *testing.T) {
 		if got := cofly.Difference(nil, nil); got != cofly.Undefined {
 			t.Fatalf("Difference(nil,nil): expected Undefined, got %#v", got)
@@ -31,6 +42,26 @@ func TestDifference(t *testing.T) {
 
 		if got := cofly.Difference(nil, 123); got != 123 {
 			t.Fatalf("Difference(nil,123): expected 123, got %#v", got)
+		}
+	})
+
+	t.Run("composite-to-nil", func(t *testing.T) {
+		oldM := map[string]any{"a": 1}
+		if got := cofly.Difference(oldM, nil); got != nil {
+			t.Fatalf("Difference(map,nil): expected nil, got %#v", got)
+		}
+
+		oldA := []any{"a"}
+		if got := cofly.Difference(oldA, nil); got != nil {
+			t.Fatalf("Difference(array,nil): expected nil, got %#v", got)
+		}
+
+		// "set to nil" should be applicable via Merge as well.
+		if got := apply(t, oldM, nil); got != nil {
+			t.Fatalf("expected Merge(Clone(map), Difference(map,nil)) == nil, got %#v", got)
+		}
+		if got := apply(t, oldA, nil); got != nil {
+			t.Fatalf("expected Merge(Clone(array), Difference(array,nil)) == nil, got %#v", got)
 		}
 	})
 
@@ -124,6 +155,98 @@ func TestDifference(t *testing.T) {
 		got2 := cofly.Difference(oldA2, newA2).(map[string]any)
 		if !reflect.DeepEqual(got2, expected2) {
 			t.Fatalf("expected %#v, got %#v", expected2, got2)
+		}
+	})
+
+	t.Run("arrays-empty-old-fast-path", func(t *testing.T) {
+		oldA := []any{}
+		newA := []any{"a", "b"}
+		expected := map[string]any{
+			"0..": []any{"a", "b"},
+		}
+
+		got := cofly.Difference(oldA, newA).(map[string]any)
+		if !reflect.DeepEqual(got, expected) {
+			t.Fatalf("expected %#v, got %#v", expected, got)
+		}
+	})
+
+	t.Run("arrays-empty-new-fast-path", func(t *testing.T) {
+		oldA := []any{"a"}
+		newA := []any{}
+		expected := map[string]any{
+			"0..1": []any{},
+		}
+
+		got := cofly.Difference(oldA, newA).(map[string]any)
+		if !reflect.DeepEqual(got, expected) {
+			t.Fatalf("expected %#v, got %#v", expected, got)
+		}
+	})
+
+	t.Run("arrays-identical-returns-undefined", func(t *testing.T) {
+		oldA := []any{
+			1,
+			"two",
+			map[string]any{"nested": map[string]any{"x": 1}},
+			[]any{"a", "b"},
+		}
+		newA := []any{
+			1,
+			"two",
+			map[string]any{"nested": map[string]any{"x": 1}},
+			[]any{"a", "b"},
+		}
+
+		if got := cofly.Difference(oldA, newA); got != cofly.Undefined {
+			t.Fatalf("expected Undefined, got %#v", got)
+		}
+	})
+
+	t.Run("array-insert-in-the-middle", func(t *testing.T) {
+		oldA := []any{"a", "b", "c"}
+		newA := []any{"a", "X", "b", "c"}
+		expected := map[string]any{
+			"1..": []any{"X"},
+		}
+
+		got := cofly.Difference(oldA, newA).(map[string]any)
+		if !reflect.DeepEqual(got, expected) {
+			t.Fatalf("expected %#v, got %#v", expected, got)
+		}
+	})
+
+	t.Run("array-replacement-and-delete-in-one-splice", func(t *testing.T) {
+		oldA := []any{
+			map[string]any{"a": 1},
+			map[string]any{"b": 1},
+		}
+		newA := []any{
+			map[string]any{"a": 2},
+		}
+
+		expected := map[string]any{
+			"0..2": []any{
+				map[string]any{"a": 2}, // element-level patch for oldA[0]
+			},
+		}
+
+		got := cofly.Difference(oldA, newA).(map[string]any)
+		if !reflect.DeepEqual(got, expected) {
+			t.Fatalf("expected %#v, got %#v", expected, got)
+		}
+	})
+
+	t.Run("array-replacement-and-insert-in-one-splice", func(t *testing.T) {
+		oldA := []any{"a"}
+		newA := []any{"A", "extra"}
+		expected := map[string]any{
+			"0..1": []any{"A", "extra"},
+		}
+
+		got := cofly.Difference(oldA, newA).(map[string]any)
+		if !reflect.DeepEqual(got, expected) {
+			t.Fatalf("expected %#v, got %#v", expected, got)
 		}
 	})
 
@@ -287,6 +410,77 @@ func TestDifference(t *testing.T) {
 		if !reflect.DeepEqual(gotChange, expectedChange) {
 			t.Fatalf("expected %#v, got %#v", expectedChange, gotChange)
 		}
+	})
+
+	t.Run("maps-nested-identical-returns-undefined", func(t *testing.T) {
+		oldM := map[string]any{"a": map[string]any{"x": 1}}
+		newM := map[string]any{"a": map[string]any{"x": 1}}
+
+		if got := cofly.Difference(oldM, newM); got != cofly.Undefined {
+			t.Fatalf("expected Undefined, got %#v", got)
+		}
+	})
+
+	t.Run("merge-after-difference-reconstructs-new-value", func(t *testing.T) {
+		testCases := []struct {
+			name string
+			old  any
+			new  any
+		}{
+			{
+				name: "primitive-int",
+				old:  1,
+				new:  2,
+			},
+			{
+				name: "map-add-update-delete",
+				old:  map[string]any{"a": 1, "b": 2},
+				new:  map[string]any{"a": 1, "b": 3, "c": "new"},
+			},
+			{
+				name: "nested-map",
+				old:  map[string]any{"nested": map[string]any{"a": 1, "b": 2}},
+				new:  map[string]any{"nested": map[string]any{"a": 2}},
+			},
+			{
+				name: "array-splices-and-nested-patch",
+				old: []any{
+					"head",
+					map[string]any{"id": 1, "name": "alice"},
+					42,
+					"keep",
+					map[string]any{"nested": map[string]any{"a": 1}},
+					3.14,
+					"tail",
+				},
+				new: []any{
+					map[string]any{"id": 1, "name": "alice"},
+					42,
+					"keep",
+					map[string]any{"nested": map[string]any{"a": 2}},
+					3.14,
+					"tail",
+					"extra",
+				},
+			},
+		}
+
+		for _, tc := range testCases {
+			t.Run(tc.name, func(t *testing.T) {
+				got := apply(t, tc.old, tc.new)
+				if !reflect.DeepEqual(got, tc.new) {
+					t.Fatalf("expected %#v, got %#v", tc.new, got)
+				}
+			})
+		}
+	})
+
+	t.Run("unsupported-types", func(t *testing.T) {
+		type S struct{ A int }
+
+		mustPanic(t, func() {
+			_ = cofly.Difference(S{A: 1}, S{A: 1})
+		})
 	})
 
 	t.Run("array-difference-optimization-mixed-types-and-objects", func(t *testing.T) {

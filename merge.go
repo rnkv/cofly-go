@@ -9,6 +9,10 @@ func Merge(target any, change any, doClean bool) any {
 		return change
 	}
 
+	if change == nil {
+		return nil
+	}
+
 	switch change := change.(type) {
 	case bool:
 		return change
