@@ -255,11 +255,22 @@ You can also **merge a change into another change** (compose patches):
 #### Object merge example
 
 ```go
-target := map[string]any{"a": 1, "b": 2}
-change := map[string]any{"b": 3, "c": "new"}
+target := map[string]any{
+    "a": 1,
+    "b": 2,
+}
+
+change := map[string]any{
+    "b": 3,
+    "c": "new",
+}
 
 output := cofly.Merge(target, change, true)
-// output == map[string]any{"a": 1, "b": 3, "c": "new"}
+// output == map[string]any{
+//   "a": 1,
+//   "b": 3,
+//   "c": "new",
+// }
 ```
 
 JSON view:
@@ -285,14 +296,25 @@ JSON view:
 Deletion with `doClean`:
 
 ```go
-target := map[string]any{"a": 1, "b": 2}
-change := map[string]any{"b": cofly.Undefined}
+target := map[string]any{
+    "a": 1,
+    "b": 2,
+}
+
+change := map[string]any{
+    "b": cofly.Undefined,
+}
 
 outputClean := cofly.Merge(cofly.Clone(target), change, true)
-// outputClean == map[string]any{"a": 1}
+// outputClean == map[string]any{
+//   "a": 1,
+// }
 
 outputKeep := cofly.Merge(cofly.Clone(target), change, false)
-// outputKeep == map[string]any{"a": 1, "b": cofly.Undefined}
+// outputKeep == map[string]any{
+//   "a": 1,
+//   "b": cofly.Undefined,
+// }
 ```
 
 #### Array merge (apply splice-map)
