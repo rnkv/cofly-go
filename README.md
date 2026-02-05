@@ -1,6 +1,7 @@
 # Cofly (Go)
 
 Tiny change/patch library for Go values (`any`), designed for applying **changes on the fly**.
+
 The name **Cofly** comes from the phrase **“Changes on the fly”**.
 
 ## Installation
