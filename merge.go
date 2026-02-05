@@ -117,7 +117,7 @@ func mergeMapIntoMap(targetMap map[string]any, changeMap map[string]any, doClean
 
 func mergeSplicesIntoArray(targetArray []any, changeSplices []splice, doClean bool) []any {
 	sortSplices(changeSplices)
-	// TODO: add validation for changeSplices
+	validateSplices(changeSplices)
 
 	// fmt.Printf("changeSplices: %#v\n", changeSplices)
 	// fmt.Printf("targetArrayLength: %d\n", len(targetArray))

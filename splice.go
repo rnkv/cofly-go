@@ -2,6 +2,7 @@ package cofly
 
 import (
 	"cmp"
+	"fmt"
 	"slices"
 )
 
@@ -87,5 +88,24 @@ func sortSplices(splices []splice) {
 }
 
 func validateSplices(splices []splice) {
-	//
+	if len(splices) <= 1 {
+		return
+	}
+
+	// Assumes splices are sorted by span.indexFrom.
+	prev := splices[0].span
+	for i := 1; i < len(splices); i++ {
+		cur := splices[i].span
+
+		// Spans are half-open ranges [from, to). Two splices overlap if prev.to > cur.from.
+		if prev.indexTo > cur.indexFrom {
+			panic(fmt.Sprintf(
+				"invalid splice-map: overlapping spans %q and %q",
+				prev.string(),
+				cur.string(),
+			))
+		}
+
+		prev = cur
+	}
 }

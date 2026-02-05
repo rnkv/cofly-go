@@ -267,6 +267,18 @@ func TestMerge(t *testing.T) {
 		}
 	})
 
+	t.Run("splices-into-array-overlapping-spans-panics", func(t *testing.T) {
+		target := []any{"a", "b", "c", "d"}
+		change := map[string]any{
+			"1..3": []any{"X"},
+			"2..4": []any{"Y"}, // overlaps with 1..3
+		}
+
+		mustPanic(t, func() {
+			_ = cofly.Merge(target, change, true)
+		})
+	})
+
 	t.Run("array-merge-non-splices-map-replaces", func(t *testing.T) {
 		target := []any{"a", "b"}
 		change := map[string]any{
