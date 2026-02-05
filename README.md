@@ -137,7 +137,7 @@ JSON view (deletion marker is `"\u0000"`):
 For arrays, `Difference` returns a **splice map**: `map[string]any` where keys are spans:
 
 - `"i..j"`: a span inside the array (from `i` to `j`, like half-open `[i, j)`)
-- `"i.."`: a span starting at `i` (for insertions before `i`, or append when `i == len(old)`), where `j == i`
+- `"i.."`: a span starting at `i` (for insertions before `i`, or append when `i == len(old)`), where `j == i`. Here `j` is **omitted** (you may write `"i..i"` or `"i.."`; they are equivalent).
 
 The value is always a `[]any` payload.
 
