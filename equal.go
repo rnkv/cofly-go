@@ -1,11 +1,9 @@
 package cofly
 
 func Equal(oldValue, newValue any) bool {
-	if newValue == nil || oldValue == nil {
-		return newValue == oldValue
-	}
-
 	switch newValue := newValue.(type) {
+	case nil:
+		return oldValue == nil
 	case bool:
 		oldValue, ok := oldValue.(bool)
 		return ok && newValue == oldValue

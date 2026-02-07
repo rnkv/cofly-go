@@ -3,26 +3,16 @@ package cofly
 import "fmt"
 
 func Clone(value any) any {
-	if value == nil {
-		return nil
-	}
-
 	switch value := value.(type) {
-	case bool:
-		return value
-	case int:
-		return value
-	case float64:
-		return value
-	case string:
+	case nil, bool, int, float64, string:
 		return value
 	case map[string]any:
 		return cloneMap(value)
 	case []any:
 		return cloneArray(value)
+	default:
+		panic(fmt.Sprintf("type [%T] unsupported", value))
 	}
-
-	panic(fmt.Sprintf("type [%T] unsupported", value))
 }
 
 func cloneMap(sourceMap map[string]any) map[string]any {

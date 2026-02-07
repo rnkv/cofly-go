@@ -5,19 +5,14 @@ import (
 )
 
 func Difference(oldValue any, newValue any) any {
-	if newValue == nil {
-		if oldValue == nil {
-			return Undefined
-		}
-
-		return nil
-	}
-
-	if oldValue == nil {
-		return newValue
-	}
-
 	switch newValue := newValue.(type) {
+	case nil:
+		switch oldValue.(type) {
+		case nil:
+			return Undefined
+		default:
+			return nil
+		}
 	case bool:
 		switch oldValue := oldValue.(type) {
 		case bool:
@@ -26,23 +21,13 @@ func Difference(oldValue any, newValue any) any {
 			}
 
 			return newValue
-		case int:
+		case nil, int, float64, string, map[string]any, []any:
 			return newValue
-		case float64:
-			return newValue
-		case string:
-			return newValue
-		case map[string]any:
-			return newValue
-		case []any:
-			return newValue
+		default:
+			panic(fmt.Sprintf("type [%T] unsupported", oldValue))
 		}
-
-		panic(fmt.Sprintf("type [%T] unsupported", oldValue))
 	case int:
 		switch oldValue := oldValue.(type) {
-		case bool:
-			return newValue
 		case int:
 			if newValue == oldValue {
 				return Undefined
@@ -55,19 +40,13 @@ func Difference(oldValue any, newValue any) any {
 			}
 
 			return newValue
-		case string:
+		case nil, bool, string, map[string]any, []any:
 			return newValue
-		case map[string]any:
-			return newValue
-		case []any:
-			return newValue
+		default:
+			panic(fmt.Sprintf("type [%T] unsupported", oldValue))
 		}
-
-		panic(fmt.Sprintf("type [%T] unsupported", oldValue))
 	case float64:
 		switch oldValue := oldValue.(type) {
-		case bool:
-			return newValue
 		case int:
 			if newValue == float64(oldValue) {
 				return Undefined
@@ -80,67 +59,39 @@ func Difference(oldValue any, newValue any) any {
 			}
 
 			return newValue
-		case string:
+		case nil, bool, string, map[string]any, []any:
 			return newValue
-		case map[string]any:
-			return newValue
-		case []any:
-			return newValue
+		default:
+			panic(fmt.Sprintf("type [%T] unsupported", oldValue))
 		}
-
-		panic(fmt.Sprintf("type [%T] unsupported", oldValue))
 	case string:
 		switch oldValue := oldValue.(type) {
-		case bool:
-			return newValue
-		case int:
-			return newValue
-		case float64:
-			return newValue
 		case string:
 			if newValue == oldValue {
 				return Undefined
 			}
 
 			return newValue
-		case map[string]any:
+		case nil, bool, int, float64, map[string]any, []any:
 			return newValue
-		case []any:
-			return newValue
+		default:
+			panic(fmt.Sprintf("type [%T] unsupported", oldValue))
 		}
-
-		panic(fmt.Sprintf("type [%T] unsupported", oldValue))
 	case map[string]any:
 		switch oldValue := oldValue.(type) {
-		case bool:
-			return newValue
-		case int:
-			return newValue
-		case float64:
-			return newValue
-		case string:
-			return newValue
 		case map[string]any:
 			return mapDifference(oldValue, newValue)
-		case []any:
-			panic("type []any unsupported to compare with map[string]any")
+		case nil, bool, int, float64, string, []any:
+			return newValue
 		default:
 			panic(fmt.Sprintf("type [%T] unsupported", oldValue))
 		}
 	case []any:
 		switch oldValue := oldValue.(type) {
-		case bool:
-			return newValue
-		case int:
-			return newValue
-		case float64:
-			return newValue
-		case string:
-			return newValue
-		case map[string]any:
-			return newValue
 		case []any:
 			return arrayDifference(oldValue, newValue)
+		case nil, bool, int, float64, string, map[string]any:
+			return newValue
 		default:
 			panic(fmt.Sprintf("type [%T] unsupported", oldValue))
 		}

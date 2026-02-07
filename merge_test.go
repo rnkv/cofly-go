@@ -36,9 +36,9 @@ func TestMerge(t *testing.T) {
 	})
 
 	t.Run("merge-undefined-string-panics", func(t *testing.T) {
-		mustPanic(t, func() {
-			_ = cofly.Merge("x", cofly.Undefined, true)
-		})
+		if got := cofly.Merge("x", cofly.Undefined, true); got != "x" {
+			t.Fatalf("expected x, got %#v", got)
+		}
 	})
 
 	t.Run("map-merge-add-update-delete", func(t *testing.T) {
