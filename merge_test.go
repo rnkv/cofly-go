@@ -232,7 +232,9 @@ func TestMerge(t *testing.T) {
 		change := map[string]any{
 			"-1..0": []any{"x", "y"},
 		}
-		want := []any{"x", "y", "a", "b"}
+		want := map[string]any{
+			"-1..0": []any{"x", "y"},
+		}
 
 		got := cofly.Merge(target, change, true)
 		if !reflect.DeepEqual(got, want) {
@@ -245,12 +247,10 @@ func TestMerge(t *testing.T) {
 		change := map[string]any{
 			"5..": []any{"x"},
 		}
-		want := []any{"a", "b", "c", "x"}
 
-		got := cofly.Merge(target, change, true)
-		if !reflect.DeepEqual(got, want) {
-			t.Fatalf("expected %#v, got %#v", want, got)
-		}
+		mustPanic(t, func() {
+			_ = cofly.Merge(target, change, true)
+		})
 	})
 
 	t.Run("splices-into-array-span-past-end-deletes-tail", func(t *testing.T) {
@@ -258,13 +258,10 @@ func TestMerge(t *testing.T) {
 		change := map[string]any{
 			"2..10": []any{"X"},
 		}
-		// span inside array is [2..4), so "c","d" are deleted, and "c" is replaced by "X".
-		want := []any{"a", "b", "X"}
 
-		got := cofly.Merge(target, change, true)
-		if !reflect.DeepEqual(got, want) {
-			t.Fatalf("expected %#v, got %#v", want, got)
-		}
+		mustPanic(t, func() {
+			_ = cofly.Merge(target, change, true)
+		})
 	})
 
 	t.Run("splices-into-array-overlapping-spans-panics", func(t *testing.T) {

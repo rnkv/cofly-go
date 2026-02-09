@@ -160,12 +160,18 @@ For arrays, `Difference` returns a **splice map**: `map[string]any` where keys a
 
 The value is always a `[]any` payload.
 
+Span key contract (for an old array length `n := len(old)`):
+
+- `i` and `j` are base-10 integers with **no sign** (no negative indices).
+- For `"i..j"`: `0 <= i <= j <= n`
+- For `"i.."`: `0 <= i <= n` (including `i == n` for append at the end)
+- Any span that goes out of bounds (for example, `n == 5` and you use `6`) is **invalid**, because it would imply a gap. Cofly treats such splice-maps as invalid and will panic when applying them.
+
 Splice-map semantics:
 
 - A splice-map is a **sparse set of edits** to an existing array. Only the spans present as keys are modified; **everything else is taken from the old array unchanged**.
 - A map is treated as a splice-map only if **all keys are valid span keys** (like `"1..2"` or `"3.."`) and **all values are `[]any` payloads**. If the map contains **any non-span key** (or a non-`[]any` value), then it is **not** a splice-map. When merged into an array, it becomes a **full replacement** (the array is replaced with that object), even if some keys look like spans.
 - **Deletion** is represented by a splice with an **empty payload** (`[]` in JSON / `[]any{}` in Go).
-- **Out-of-bounds insertions are “magnetized” to the array**: if a splice inserts far to the left (negative indices) it behaves like a prepend, and if it inserts far to the right (beyond `len(old)`) it behaves like an append (no gaps are created).
 - **Splice spans must not overlap**. Overlapping spans make the patch ambiguous; Cofly treats such splice-maps as invalid and will panic when applying them.
 
 Implementation note: array changes are computed using the **Myers diff algorithm** (Myers, 1986).

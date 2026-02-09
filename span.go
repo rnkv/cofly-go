@@ -27,6 +27,9 @@ func parseSpan(key string) (span, bool) {
 	if err != nil {
 		return span{}, false
 	}
+	if indexFrom < 0 {
+		return span{}, false
+	}
 
 	indexTo := indexFrom
 
@@ -51,38 +54,38 @@ func (s span) length() int {
 	return s.indexTo - s.indexFrom
 }
 
-func (s span) positiveBeforeLength(length int) (span, bool) {
-	if s.indexTo < 0 || s.indexFrom >= length {
-		return span{}, false
-	}
+// func (s span) positiveBeforeLength(length int) (span, bool) {
+// 	if s.indexTo < 0 || s.indexFrom >= length {
+// 		return span{}, false
+// 	}
 
-	return span{
-		indexFrom: max(s.indexFrom, 0),
-		indexTo:   min(s.indexTo, length),
-	}, true
-}
+// 	return span{
+// 		indexFrom: max(s.indexFrom, 0),
+// 		indexTo:   min(s.indexTo, length),
+// 	}, true
+// }
 
-func (s span) negative() (span, bool) {
-	if s.indexFrom >= 0 {
-		return span{}, false
-	}
+// func (s span) negative() (span, bool) {
+// 	if s.indexFrom >= 0 {
+// 		return span{}, false
+// 	}
 
-	return span{
-		indexFrom: s.indexFrom,
-		indexTo:   min(s.indexTo, 0),
-	}, true
-}
+// 	return span{
+// 		indexFrom: s.indexFrom,
+// 		indexTo:   min(s.indexTo, 0),
+// 	}, true
+// }
 
-func (s span) afterLength(length int) (span, bool) {
-	if s.indexTo < length {
-		return span{}, false
-	}
+// func (s span) afterLength(length int) (span, bool) {
+// 	if s.indexTo < length {
+// 		return span{}, false
+// 	}
 
-	return span{
-		indexFrom: max(s.indexFrom, length),
-		indexTo:   s.indexTo,
-	}, true
-}
+// 	return span{
+// 		indexFrom: max(s.indexFrom, length),
+// 		indexTo:   s.indexTo,
+// 	}, true
+// }
 
 func (s span) string() string {
 	buffer := make([]byte, 0, 24)

@@ -94,66 +94,24 @@ func mergeSplicesIntoArray(targetArray []any, changeSplices []splice, doClean bo
 	outputArrayLength := len(targetArray)
 
 	for _, changeSplice := range changeSplices {
-		insideArraySpan, isInsideArraySpan := changeSplice.span.positiveBeforeLength(len(targetArray))
-		outputArrayLength += len(changeSplice.value)
-
-		if isInsideArraySpan {
-			outputArrayLength -= insideArraySpan.length()
+		if changeSplice.span.indexTo > len(targetArray) {
+			panic(fmt.Sprintf("changeSplice span is past the end of the array: %q", changeSplice.span.string()))
 		}
+
+		outputArrayLength += len(changeSplice.value) - changeSplice.span.length()
 	}
 
 	// fmt.Printf("outputArrayLength: %d\n", outputArrayLength)
 	outputArray := make([]any, 0, outputArrayLength)
 	targetArrayCursor := 0
 	changeSpliceValueOffset := 0
-	changeSpliceIndex := 0
 
-	for changeSpliceIndex < len(changeSplices) {
-		changeSplice := changeSplices[changeSpliceIndex]
-		beforeArraySpan, isBeforeArraySpan := changeSplice.span.negative()
-		if !isBeforeArraySpan {
-			break
-		}
-
-		// fmt.Printf("beforeArraySpan: %#v\n", beforeArraySpan)
-		_, isInsideArraySpan := changeSplice.span.positiveBeforeLength(len(targetArray))
-		appendedElementsCount := 0
-
-		if isInsideArraySpan {
-			appendedElementsCount = min(beforeArraySpan.length(), len(changeSplice.value))
-		} else {
-			appendedElementsCount = len(changeSplice.value)
-		}
-
-		// fmt.Printf("appendedElementsCount: %d\n", appendedElementsCount)
-
-		outputArray = append(
-			outputArray,
-			changeSplice.value[0:appendedElementsCount]...,
-		)
-
-		if isInsideArraySpan {
-			changeSpliceValueOffset += appendedElementsCount
-			break
-		}
-
-		changeSpliceIndex++
-	}
-
-	for changeSpliceIndex < len(changeSplices) {
-		changeSplice := changeSplices[changeSpliceIndex]
-		insideArraySpan, isInsideArraySpan := changeSplice.span.positiveBeforeLength(len(targetArray))
-		if !isInsideArraySpan {
-			changeSpliceValueOffset = 0
-			break
-		}
-
-		// fmt.Printf("insideArraySpan: %#v\n", insideArraySpan)
-		outputArray = append(outputArray, targetArray[targetArrayCursor:insideArraySpan.indexFrom]...)
-		targetArrayCursor = insideArraySpan.indexTo
+	for _, changeSplice := range changeSplices {
+		outputArray = append(outputArray, targetArray[targetArrayCursor:changeSplice.span.indexFrom]...)
+		targetArrayCursor = changeSplice.span.indexTo
 
 		modifiedElementsCount := min(
-			insideArraySpan.length(),
+			changeSplice.span.length(),
 			len(changeSplice.value)-changeSpliceValueOffset,
 		)
 
@@ -161,7 +119,7 @@ func mergeSplicesIntoArray(targetArray []any, changeSplices []splice, doClean bo
 
 		for elementIndex := range modifiedElementsCount {
 			outputArray = append(outputArray, Merge(
-				targetArray[insideArraySpan.indexFrom+elementIndex],
+				targetArray[changeSplice.span.indexFrom+elementIndex],
 				changeSplice.value[changeSpliceValueOffset+elementIndex],
 				doClean,
 			))
@@ -176,38 +134,12 @@ func mergeSplicesIntoArray(targetArray []any, changeSplices []splice, doClean bo
 			changeSplice.value[changeSpliceValueOffset:changeSpliceValueOffset+appendedElementsCount]...,
 		)
 
-		_, isAfterArraySpan := changeSplice.span.afterLength(len(targetArray))
-		if isAfterArraySpan {
-			changeSpliceValueOffset += appendedElementsCount
-			break
-		}
-
 		changeSpliceValueOffset = 0
-		changeSpliceIndex++
 	}
 
 	if targetArrayCursor < len(targetArray) {
 		outputArray = append(outputArray, targetArray[targetArrayCursor:]...)
 		targetArrayCursor = len(targetArray)
-	}
-
-	for changeSpliceIndex < len(changeSplices) {
-		changeSplice := changeSplices[changeSpliceIndex]
-		_, isAfterArraySpan := changeSplice.span.afterLength(len(targetArray))
-		if !isAfterArraySpan {
-			panic("impossible case")
-		}
-
-		// fmt.Printf("afterArraySpan: %#v\n", afterArraySpan)
-		appendedElementsCount := max(0, len(changeSplice.value)-changeSpliceValueOffset)
-
-		outputArray = append(
-			outputArray,
-			changeSplice.value[changeSpliceValueOffset:changeSpliceValueOffset+appendedElementsCount]...,
-		)
-
-		changeSpliceValueOffset = 0
-		changeSpliceIndex++
 	}
 
 	if outputArrayLength != len(outputArray) {

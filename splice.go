@@ -93,19 +93,21 @@ func validateSplices(splices []splice) {
 	}
 
 	// Assumes splices are sorted by span.indexFrom.
-	prev := splices[0].span
-	for i := 1; i < len(splices); i++ {
-		cur := splices[i].span
+	previousSpan := splices[0].span
 
-		// Spans are half-open ranges [from, to). Two splices overlap if prev.to > cur.from.
-		if prev.indexTo > cur.indexFrom {
+	for i := 1; i < len(splices); i++ {
+		currentSpan := splices[i].span
+
+		// Spans are half-open ranges [from, to).
+		// Two splices overlap if previousSpan.indexTo > currentSpan.indexFrom.
+		if previousSpan.indexTo > currentSpan.indexFrom {
 			panic(fmt.Sprintf(
 				"invalid splice-map: overlapping spans %q and %q",
-				prev.string(),
-				cur.string(),
+				previousSpan.string(),
+				currentSpan.string(),
 			))
 		}
 
-		prev = cur
+		previousSpan = currentSpan
 	}
 }
