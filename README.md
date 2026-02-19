@@ -383,7 +383,7 @@ Deep equality for supported values.
 
 Notes:
 
-- `int` and `float64` are considered equal when numerically equal (`1` equals `1.0`).
+- `int*`, `uint*` and `float*` are considered equal when numerically equal (`1` equals `1.0`).
 - Unsupported values return `false`.
 
 ```go
