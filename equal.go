@@ -7,21 +7,35 @@ func Equal(oldValue, newValue any) bool {
 	case bool:
 		oldValue, ok := oldValue.(bool)
 		return ok && newValue == oldValue
-	case int:
+	case int, int8, int16, int32, int64:
 		switch oldValue := oldValue.(type) {
-		case int:
-			return newValue == oldValue
-		case float64:
-			return float64(newValue) == oldValue
+		case int, int8, int16, int32, int64:
+			return toInt64(newValue) == toInt64(oldValue)
+		case
+			uint, uint8, uint16, uint32, uint64,
+			float32, float64:
+			return toFloat64(newValue) == toFloat64(oldValue)
 		default:
 			return false
 		}
-	case float64:
+	case uint, uint8, uint16, uint32, uint64:
 		switch oldValue := oldValue.(type) {
-		case int:
-			return newValue == float64(oldValue)
-		case float64:
-			return newValue == oldValue
+		case uint, uint8, uint16, uint32, uint64:
+			return toUint64(newValue) == toUint64(oldValue)
+		case
+			int, int8, int16, int32, int64,
+			float32, float64:
+			return toFloat64(newValue) == toFloat64(oldValue)
+		default:
+			return false
+		}
+	case float32, float64:
+		switch oldValue := oldValue.(type) {
+		case
+			float32, float64,
+			int, int8, int16, int32, int64,
+			uint, uint8, uint16, uint32, uint64:
+			return toFloat64(newValue) == toFloat64(oldValue)
 		default:
 			return false
 		}
