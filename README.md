@@ -16,7 +16,9 @@ The library works with values shaped like JSON:
 
 - `nil`
 - `bool`
-- `int`, `float64` (with a special equivalence rule, see below)
+- `int`, `int8`, `int16`, `int32`, `int64`
+- `uint`, `uint8`, `uint16`, `uint32`, `uint64`
+- `float32`, `float64`
 - `string`
 - `map[string]any`
 - `[]any`
@@ -30,7 +32,7 @@ This makes it convenient for patching values that come from JSON (or will be sen
 
 Notes:
 
-- **Numbers**: JSON has just “number”, but Go often uses `int`/`float64`. Cofly treats `int` and `float64` as equal when numerically equal (`1` equals `1.0`).
+- **Numbers**: JSON has just “number”, but Go often uses `int*`/`uint*`/`float*`. Cofly treats `int*`, `uint*` and `float*` as equal when numerically equal (`1` equals `1.0`).
 - **`Undefined`**: standard JSON has no `undefined`. Cofly introduces its own JSON-compatible extension for deletions: the marker is the string `"\u0000"` (NUL). It is JSON-serializable, but it is **reserved** by the contract (see below).
 
 ## Reserved value: `Undefined`

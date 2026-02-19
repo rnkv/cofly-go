@@ -6,7 +6,11 @@ import (
 
 func Merge(target any, change any, doClean bool) any {
 	switch change := change.(type) {
-	case nil, bool, int, float64:
+	case nil,
+		bool,
+		int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64,
+		float32, float64:
 		return change
 	case string:
 		if change == Undefined {
@@ -41,7 +45,13 @@ func Merge(target any, change any, doClean bool) any {
 		switch target := target.(type) {
 		case map[string]any:
 			return mergeMapIntoMap(target, change, doClean)
-		case nil, bool, int, float64, string, []any:
+		case nil,
+			bool,
+			int, int8, int16, int32, int64,
+			uint, uint8, uint16, uint32, uint64,
+			float32, float64,
+			string,
+			[]any:
 			return change
 		default:
 			panic(fmt.Sprintf("target type [%T] is not supported", target))
@@ -57,9 +67,9 @@ func Merge(target any, change any, doClean bool) any {
 		default:
 			panic(fmt.Sprintf("target type [%T] is not supported", target))
 		}
+	default:
+		panic(fmt.Sprintf("change type [%T] is not supported", change))
 	}
-
-	panic(fmt.Sprintf("change type [%T] is not supported", change))
 }
 
 func mergeMapIntoMap(targetMap map[string]any, changeMap map[string]any, doClean bool) map[string]any {
